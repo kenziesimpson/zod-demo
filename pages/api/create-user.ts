@@ -1,16 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { z } from "zod";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { name, email } = req.body;
+  const schema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+  });
 
-  if (name == undefined) {
-    res.status(500).json({ error: `name undefined` });
-  } else if (email == undefined) {
-    res.status(500).json({ error: `email undefined` });
-  } else if (/* name form validation */ false) {
-    res.status(500).json({ error: `invalid name: {name}` });
-  } else if (/* email form validation */ false) {
-    res.status(500).json({ error: `invalid email: {email}` });
+  const data = schema.safeParse(req.body);
+
+  if (!data.success) {
+    res.status(500).json({
+      error: "schema error",
+    });
   } else {
     res.status(200).json({ id: 12345 });
   }
